@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import reactCSS from 'reactcss'
 import { SketchPicker } from 'react-color'
+import Hammer from 'hammerjs'
 
-import './App.css';
+import './App.css'
 
 
 class App extends Component {
@@ -11,7 +12,7 @@ class App extends Component {
     
     this.state = {
       pieces: 6,
-      padding: 50,
+      padding: 120,
       displayColorPickers: true,
       backgroundColor: {
         r:255,
@@ -46,8 +47,16 @@ class App extends Component {
     const backgroundColor = this.generateRGBA(this.state.backgroundColor, this.state.backgroundColor.a)
 
     return (
-      <div className="App" style={{ padding: this.state.padding, backgroundColor }}>
-        <svg width={this.state.width} height={this.state.height}>
+      <div className="App">
+        { this.state.displayColorPickers ? <div className="color-pickers">
+          <ColorPicker color={this.state.backgroundColor} disableAlpha={false}
+            handleChange={ (color) => this.setState({backgroundColor: color}) } />
+          <ColorPicker color={this.state.topColor} disableAlpha={true}
+            handleChange={ (color) => this.setState({topColor: color}) } />
+          <ColorPicker color={this.state.bottomColor} disableAlpha={true}
+            handleChange={ (color) => this.setState({bottomColor: color}) } />
+        </div> : null } 
+        <svg style={{padding: this.state.padding, backgroundColor}} width={this.state.width} height={this.state.height}>
 
           {points.map(i => {
             return (
@@ -71,14 +80,6 @@ class App extends Component {
           })}
 
         </svg>
-        { this.state.displayColorPickers ? <div style={{ position:"absolute", top: 5, left: 5}}>
-          <ColorPicker color={this.state.backgroundColor} disableAlpha={false}
-            handleChange={ (color) => this.setState({backgroundColor: color}) } />
-          <ColorPicker color={this.state.topColor} disableAlpha={true}
-            handleChange={ (color) => this.setState({topColor: color}) } />
-          <ColorPicker color={this.state.bottomColor} disableAlpha={true}
-            handleChange={ (color) => this.setState({bottomColor: color}) } />
-        </div> : null } 
       </div>
     )
   }
@@ -97,8 +98,15 @@ class App extends Component {
         height = w.innerHeight|| documentElement.clientHeight|| body.clientHeight
 
     const dim = Math.min(width, height) - this.state.padding * 2
+    const settings = { width: dim , height: dim }
+    
+    if (width < 600) {
+      settings["padding"] = 60
+    } else {
+      settings["padding"] = 120
+    }
 
-    this.setState({ width: dim , height: dim})
+    this.setState(settings)
   }
 
   handleKeydown (ev) {
@@ -107,11 +115,19 @@ class App extends Component {
       this.setState({displayColorPickers: !this.state.displayColorPickers})
     } else if (ev.which === 40) {
       ev.preventDefault()
-      this.setState({pieces: Math.max(this.state.pieces-1 , 2) })
+      
     } else if (ev.which === 38) {
       ev.preventDefault()
-      this.setState({pieces: Math.min(this.state.pieces+1 , 15) })
+      this.addPiece()
     }
+  }
+
+  addPiece () {
+    this.setState({pieces: Math.min(this.state.pieces+1 , 15) })
+  }
+
+  removePiece () {
+    this.setState({pieces: Math.max(this.state.pieces-1 , 2) })
   }
 
   componentWillMount () {
@@ -121,6 +137,16 @@ class App extends Component {
   componentDidMount () {
     window.addEventListener("resize", this.updateDimensions.bind(this), true)
     window.addEventListener('keydown', this.handleKeydown.bind(this), true)
+    
+    const mc = new Hammer(document, { preventDefault: true })
+
+    mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL })
+    mc.get('pinch').set({ enable: true })
+
+    mc.on("swipedown", ev => this.addPiece())
+      .on("swipeup", ev => this.removePiece())
+
+    this.updateDimensions()
   }
 
   componentWillUnmount () {
@@ -159,18 +185,9 @@ class ColorPicker extends React.Component {
     const styles = reactCSS({
       'default': {
         color: {
-          width: '36px',
-          height: '14px',
           background: this.state.disableAlpha ?
                 `rgb(${ this.state.color.r }, ${ this.state.color.g }, ${ this.state.color.b })` :
                 `rgba(${ this.state.color.r }, ${ this.state.color.g }, ${ this.state.color.b },  ${ this.state.color.a })`,
-        },
-        swatch: {
-          padding: '5px',
-          background: '#fff',
-          boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-          display: 'inline-block',
-          cursor: 'pointer',
         },
         popover: {
           position: 'absolute',
@@ -187,9 +204,9 @@ class ColorPicker extends React.Component {
     })
 
     return (
-      <div>
-        <div style={ styles.swatch } onClick={ this.handleClick }>
-          <div style={ styles.color } />
+      <div className='color-picker'>
+        <div className='swatch' onClick={ this.handleClick }>
+          <div className='color' style={ styles.color } />
         </div>
         { this.state.displayColorPicker ? <div style={ styles.popover }>
           <div style={ styles.cover } onClick={ this.handleClose }/>

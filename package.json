@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "http://dmitric.github.io/serene",
   "dependencies": {
+    "hammerjs": "^2.0.8",
     "react": "^15.4.2",
     "react-color": "^2.11.4",
     "react-dom": "^15.4.2"
