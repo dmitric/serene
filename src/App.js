@@ -115,7 +115,7 @@ class App extends Component {
       this.setState({displayColorPickers: !this.state.displayColorPickers})
     } else if (ev.which === 40) {
       ev.preventDefault()
-      
+      this.removePiece()
     } else if (ev.which === 38) {
       ev.preventDefault()
       this.addPiece()
