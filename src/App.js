@@ -29,7 +29,9 @@ class App extends Component {
         r: 0,
         g: 0,
         b: 255
-      }
+      },
+      currentOverride: null,
+      overrides : { }
     }
   }
 
@@ -40,11 +42,14 @@ class App extends Component {
       points.push((this.state.pieces - i)/ this.state.pieces)
     }
 
-    const alpha = Math.max(0.15, 1/this.state.pieces)
+    const alpha = Math.max(0.25, 1/this.state.pieces)
 
-    const topColor = this.generateRGBA(this.state.topColor, alpha)
-    const bottomColor = this.generateRGBA(this.state.bottomColor, alpha)
-    const backgroundColor = this.generateRGBA(this.state.backgroundColor, this.state.backgroundColor.a)
+    const topColor = this.generateRGBAWithAlpha(this.state.topColor, alpha)
+    const bottomColor = this.generateRGBAWithAlpha(this.state.bottomColor, alpha)
+    const backgroundColor = this.generateRGBA(this.state.backgroundColor)
+
+    const topColorWithAlpha = {r: this.state.topColor.r, g: this.state.topColor.g, b: this.state.topColor.b, a: alpha}
+    const bottomColorWithAlpha = {r: this.state.bottomColor.r, g: this.state.bottomColor.g, b: this.state.bottomColor.b, a: alpha}
 
     return (
       <div className="App">
@@ -55,26 +60,53 @@ class App extends Component {
             handleChange={ (color) => this.setState({topColor: color}) } />
           <ColorPicker color={this.state.bottomColor} disableAlpha={true}
             handleChange={ (color) => this.setState({bottomColor: color}) } />
-        </div> : null } 
+          { this.state.currentOverride ?
+              <ColorPicker
+                color={ this.state.overrides[this.state.currentOverride] || (this.state.currentOverride.includes("top") ? topColorWithAlpha : bottomColorWithAlpha)}
+                displayColorPicker={true}
+                disableAlpha={false}
+                handleClose={ () => this.setState({currentOverride: null})}
+                handleChange={ (color) => {
+                  const clone = Object.assign({}, this.state.overrides)
+                  clone[this.state.currentOverride] = color
+                  this.setState({overrides: clone})
+                } } /> : null}
+        </div> : null }
+
         <svg style={{padding: this.state.padding, backgroundColor}} width={this.state.width} height={this.state.height}>
 
-          {points.map(i => {
+          {points.map((i, index) => {
+            const id = `${index}-top`
             return (
-              <path key={i} d={`M 0 ${this.state.height/2}
+              <path onClick={ () => this.setState({ currentOverride: id}) }
+                ref={id} key={i} d={`M 0 ${this.state.height/2}
                 a 1 1 0 1 1 ${this.state.width * i} 0`}
-                fill={topColor}/>
+                fill={ this.state.overrides[id] ? this.generateRGBA(this.state.overrides[id]) : topColor}/>
             )
           })}
 
-          {points.map(i => {
+          {points.map((i, index) => {
+            const leftId = `${index}-bottom-left`
+            const rightId = `${index}-bottom-right`
+
+            const left = (
+               <path onClick={ () => this.setState({ currentOverride: leftId }) }
+                  ref={leftId} d={`M 0 ${this.state.height/2}
+                  a 1 1 0 0 0 ${this.state.width * i} 0`}
+                  fill={this.state.overrides[leftId] ? this.generateRGBA(this.state.overrides[leftId]) : bottomColor} />
+            )
+
+            const right = (
+              <path onClick={ () => this.setState({ currentOverride: rightId }) }
+                  ref={rightId} d={`M ${this.state.width * (1 - i)} ${this.state.height/2}
+                  a 1 1 0 0 0 ${this.state.width * i} 0`}
+                  fill={ this.state.overrides[rightId] ? this.generateRGBA(this.state.overrides[rightId]) : bottomColor } />
+            )
+
             return (
               <g key={i}>
-                <path d={`M 0 ${this.state.height/2}
-                  a 1 1 0 0 0 ${this.state.width * i} 0`} fill={bottomColor} />
-
-                <path d={`M ${this.state.width * (1 - i)} ${this.state.height/2}
-                  a 1 1 0 0 0 ${this.state.width * i} 0`}
-                  fill={ this.state.width * (1 - i) === 0 ? 'transparent' : bottomColor } />
+                {left}
+                {this.state.width * (1 - i) === 0 ? null : right}
               </g>
             )
           })}
@@ -84,7 +116,11 @@ class App extends Component {
     )
   }
 
-  generateRGBA(rgb, alpha) {
+  generateRGBA(rgba) {
+    return `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`
+  }
+
+  generateRGBAWithAlpha(rgb, alpha) {
     return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`
   }
 
@@ -162,7 +198,7 @@ class ColorPicker extends React.Component {
 
     this.state = {
       color: props.color,
-      displayColorPicker: false,
+      displayColorPicker: props.displayColorPicker,
       disableAlpha: props.disableAlpha
     }
   }
@@ -173,6 +209,9 @@ class ColorPicker extends React.Component {
 
   handleClose = () => {
     this.setState({ displayColorPicker: false })
+    if (this.props.handleClose) {
+      this.props.handleClose()
+    }
   };
 
   handleChange = (color) => {
