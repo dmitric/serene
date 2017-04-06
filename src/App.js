@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import reactCSS from 'reactcss'
 import { SketchPicker } from 'react-color'
 import Hammer from 'hammerjs'
+import tinycolor from 'tinycolor2'
 
 import './App.css'
 
@@ -44,10 +45,6 @@ class App extends Component {
 
     const alpha = Math.max(0.25, 1/this.state.pieces)
 
-    const topColor = this.generateRGBAWithAlpha(this.state.topColor, alpha)
-    const bottomColor = this.generateRGBAWithAlpha(this.state.bottomColor, alpha)
-    const backgroundColor = this.generateRGBA(this.state.backgroundColor)
-
     const topColorWithAlpha = {r: this.state.topColor.r, g: this.state.topColor.g, b: this.state.topColor.b, a: alpha}
     const bottomColorWithAlpha = {r: this.state.bottomColor.r, g: this.state.bottomColor.g, b: this.state.bottomColor.b, a: alpha}
 
@@ -73,15 +70,19 @@ class App extends Component {
                 } } /> : null}
         </div> : null }
 
-        <svg style={{padding: this.state.padding, backgroundColor}} width={this.state.width} height={this.state.height}>
+        <svg width={this.state.width + 2 * this.state.padding} height={this.state.height + 2 * this.state.padding}>
+          <rect width={this.state.width + 2 * this.state.padding} height={this.state.width + 2 * this.state.padding}
+            fill={tinycolor(this.state.backgroundColor).toHexString()}
+            fillOpacity={tinycolor(this.state.backgroundColor).getAlpha()} />
 
           {points.map((i, index) => {
             const id = `${index}-top`
             return (
               <path onClick={ () => this.setState({ currentOverride: id}) }
-                ref={id} key={i} d={`M 0 ${this.state.height/2}
+                ref={id} key={i} d={`M ${this.state.padding} ${this.state.height/2 + this.state.padding}
                 a 1 1 0 1 1 ${this.state.width * i} 0`}
-                fill={ this.state.overrides[id] ? this.generateRGBA(this.state.overrides[id]) : topColor}/>
+                fill={ this.state.overrides[id] ? tinycolor(this.state.overrides[id]).toHexString() : tinycolor(this.state.topColor).toHexString()}
+                fillOpacity={ this.state.overrides[id] ? tinycolor(this.state.overrides[id]).getAlpha() : alpha } />
             )
           })}
 
@@ -91,16 +92,20 @@ class App extends Component {
 
             const left = (
                <path onClick={ () => this.setState({ currentOverride: leftId }) }
-                  ref={leftId} d={`M 0 ${this.state.height/2}
+                  ref={leftId} d={`M ${this.state.padding} ${this.state.height/2 + this.state.padding}
                   a 1 1 0 0 0 ${this.state.width * i} 0`}
-                  fill={this.state.overrides[leftId] ? this.generateRGBA(this.state.overrides[leftId]) : bottomColor} />
+                  fill={this.state.overrides[leftId] ?
+                      tinycolor(this.state.overrides[leftId]).toHexString() : tinycolor(this.state.bottomColor).toHexString()}
+                  fillOpacity={ this.state.overrides[leftId] ?
+                      tinycolor(this.state.overrides[leftId]).getAlpha() : alpha } />
             )
 
             const right = (
               <path onClick={ () => this.setState({ currentOverride: rightId }) }
-                  ref={rightId} d={`M ${this.state.width * (1 - i)} ${this.state.height/2}
+                  ref={rightId} d={`M ${this.state.width * (1 - i) + this.state.padding} ${this.state.height/2 + this.state.padding}
                   a 1 1 0 0 0 ${this.state.width * i} 0`}
-                  fill={ this.state.overrides[rightId] ? this.generateRGBA(this.state.overrides[rightId]) : bottomColor } />
+                  fill={this.state.overrides[rightId] ? tinycolor(this.state.overrides[rightId]).toHexString() : tinycolor(this.state.bottomColor).toHexString()}
+                  fillOpacity={ this.state.overrides[rightId] ? tinycolor(this.state.overrides[rightId]).getAlpha() : alpha } />
             )
 
             return (
@@ -114,14 +119,6 @@ class App extends Component {
         </svg>
       </div>
     )
-  }
-
-  generateRGBA(rgba) {
-    return `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`
-  }
-
-  generateRGBAWithAlpha(rgb, alpha) {
-    return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`
   }
 
   updateDimensions () {
