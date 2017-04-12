@@ -146,6 +146,9 @@ class App extends Component {
     if (ev.which === 67) {
       ev.preventDefault()
       this.setState({displayColorPickers: !this.state.displayColorPickers})
+    } else if (ev.which === 82) {
+      ev.preventDefault()
+      this.clearOverrides()
     } else if (ev.which === 40) {
       ev.preventDefault()
       this.removePiece()
@@ -153,6 +156,10 @@ class App extends Component {
       ev.preventDefault()
       this.addPiece()
     }
+  }
+
+  clearOverrides () {
+    this.setState({overrides:{}, currentOverride: null})
   }
 
   addPiece () {
