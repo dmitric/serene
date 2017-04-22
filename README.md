@@ -2,7 +2,7 @@
 
 When moving into my new apartment I decided that I should at least have one piece of my own art up on a wall. It needed to be something I could stand to look at every day, and my partner required that it be abstract or geometric art. 
 
-The original design was inspired by the Korean flag, but I didn't have an exact place in mind, so I also wanted to be able to adjust the color palette and re-size it relatively easily. In order to make the image easily scalable, I decided to use SVG.
+The original design was inspired by the Korean flag, but I didn't have an exact place in mind to hang it, so I also wanted to be able to adjust the color palette and re-size it relatively easily. In order to make the image easily scalable, I decided to use SVG.
 
 The initial version was really just a few lines of code, but I wanted to add more functionality and coloring ability, as well as the ability to manipulate it from a mobile interface.
 
