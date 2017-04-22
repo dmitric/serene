@@ -6,15 +6,14 @@ The original design was inspired by the Korean flag, but I didn't have an exact 
 
 The initial version was really just a few lines of code, but I wanted to add more functionality and coloring ability, as well as the ability to manipulate it from a mobile interface.
 
-### What it looks like
+## What it looks like
+
+[See the Demo](http://blog.zmitri.com/serene/)
 
 ![The interface](http://i.imgur.com/rXy8TKw.png)
 
-### See it live
 
-[Demo](http://blog.zmitri.com/serene/)
-
-### Interactions
+## Interactions
 
 **Increase or decrease the number of lobes** - Swipe up or down, up and down keyboard keys
 
@@ -26,7 +25,7 @@ The initial version was really just a few lines of code, but I wanted to add mor
 
 **Reset colors** - The 'r' key
 
-### The end product
+## The end product
 
 Printed and framed
 
