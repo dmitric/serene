@@ -1,4 +1,4 @@
-## Serene
+# Serene
 
 When moving into my new apartment I decided that I should at least have one piece of my own art up on a wall. It needed to be something I could stand to look at every day, and my partner required that it be abstract or geometric art. 
 
@@ -22,9 +22,12 @@ The initial version was really just a few lines of code, but I wanted to add mor
 
 **Reset colors** - The 'r' key
 
-### The end product
+## The end product
+
+Printed and framed
+
 ![The end product](http://i.imgur.com/saHu0B3.jpg)
 
-### Caveat
+## Caveat
 
 The browsers generally show SVG with the RGB color space, but once imported into something like illustrator, or if you export a PNG from an SVG in Sketch, it will display it in sRGB color space.
